@@ -4,8 +4,8 @@ A professional full-stack Next.js application that leverages a **Retrieval-Augme
 
 ## 🚀 Core Features
 - **Intelligent Q&A**: Powered by **Google Gemini 2.5 Flash** for high-quality, context-aware responses.
-- **RAG Architecture**: Combines local vector search with LLM reasoning to ensure accuracy.
-- **Local Embeddings**: Document processing and similarity search happen entirely on your machine using the `all-MiniLM-L6-v2` model via `@xenova/transformers`.
+- **RAG Architecture**: Combines vector-based semantic search with LLM reasoning to ensure accuracy.
+- **Remote Embeddings**: Uses Google's `text-embedding-004` model for high-speed, 768-dimensional semantic vectors.
 - **Hybrid Storage**: MongoDB for persistent records, and an optimized in-memory vector store for lightning-fast retrieval.
 - **Smart Data Handling**: Auto-chunking (500 chars with 50-char overlap) for optimal context window management.
 - **Premium UI**: Responsive, minimal glassmorphic design built with Tailwind CSS, Framer Motion, and React Markdown.
@@ -13,9 +13,7 @@ A professional full-stack Next.js application that leverages a **Retrieval-Augme
 
 ## 🛠 Tech Stack
 - **Framework**: Next.js 16 (App Router)
-- **AI/ML**: 
-  - **Local**: `@xenova/transformers` (Local Embedding Generation)
-  - **LLM**: Google Gemini API (`gemini-2.5-flash`)
+- **AI/ML**: Google Gemini API (`2.5-flash` for answers, `text-embedding-004` for vectors)
 - **Styling**: Tailwind CSS & Framer Motion
 - **Database**: MongoDB Atlas with Mongoose
 - **Status Monitoring**: Custom health check system for the backend, DB, and AI readiness.
@@ -59,7 +57,7 @@ Visit `/status` to see real-time health checks for:
 
 ## 🧠 The RAG Pipeline
 1. **Extraction**: TXT content is extracted and split into chunks with overlap to preserve context.
-2. **Embedding**: A local `all-MiniLM` model converts text into 384-dimensional vectors.
+2. **Embedding**: Google's `text-embedding-004` model converts text into **768-dimensional** semantic vectors.
 3. **Vector Store**: Chunks are stored in memory for O(1) retrieval speed.
 4. **Similarity Search**: User questions are embedded and matched using **Cosine Similarity**.
 5. **Generation**: The top 3 most relevant contexts are sent to Gemini with a strict "answer only using context" instruction to prevent hallucinations.

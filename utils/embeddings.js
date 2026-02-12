@@ -1,23 +1,25 @@
-import { pipeline, env } from '@xenova/transformers';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Configuration for local environment
-env.allowLocalModels = false; // Force downloading if not in high-security environment
-env.useBrowserCache = false;
-
-let extractor = null;
+// Initialize Gemini for Embeddings
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function getEmbedding(text) {
     try {
-        if (!extractor) {
-            console.log('🏗️ Initializing embedding model (this may take a moment on first run)...');
-            extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-            console.log('✅ Model ready');
+        if (!process.env.GEMINI_API_KEY) {
+            throw new Error('GEMINI_API_KEY is missing');
         }
 
-        const output = await extractor(text, { pooling: 'mean', normalize: true });
-        return Array.from(output.data);
+        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+        const result = await model.embedContent(text);
+        const embedding = result.embedding.values;
+
+        if (!embedding || !Array.isArray(embedding)) {
+            throw new Error('Failed to retrieve valid embedding array from Gemini');
+        }
+
+        return Array.from(embedding);
     } catch (error) {
-        console.error('❌ Embedding Generation Error:', error);
-        throw new Error(`Failed to generate embeddings: ${error.message}`);
+        console.error('❌ Gemini Embedding Error:', error);
+        throw new Error(`Embedding failed: ${error.message}`);
     }
 }
