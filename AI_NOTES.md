@@ -2,7 +2,7 @@
 
 ## AI Architecture
 This project has been upgraded to a full **Retrieval-Augmented Generation (RAG)** pipeline.
-- **Embeddings**: Powered by **Google Gemini `text-embedding-004`** for high-quality semantic vector generation.
+- **Embeddings**: Powered by **Google Gemini `embedding-001`** for high-quality semantic vector generation.
 - **Vector Search**: Custom cosine similarity engine computed against stored embeddings.
 - **Answer Generation**: Powered by **Google Gemini 2.5 Flash** for high-quality, context-aware responses.
 
@@ -16,6 +16,6 @@ This project has been upgraded to a full **Retrieval-Augmented Generation (RAG)*
 
 ## RAG Flow Detail
 1. **Extraction**: TXT content is extracted and chunked.
-2. **Embedding**: Gemini API converts text chunks into **768-dimensional** semantic vectors.
+2. **Embedding**: Gemini API converts text chunks into semantic high-dimensional vectors.
 3. **Retrieval**: User questions are embedded and matched against chunks using cosine similarity.
 4. **Generation**: The top 3 contexts are injected into a Gemini system prompt to produce the final answer.
