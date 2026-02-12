@@ -30,7 +30,7 @@ export default function UploadForm({ onUploadSuccess }) {
 
         setIsUploading(true);
         setError(null);
-        const uploadToast = toast.loading('Uploading documents...');
+        const uploadToast = toast.loading('Processing documents (First time may take up to 20s)...');
 
         const formData = new FormData();
         files.forEach(file => {
@@ -43,7 +43,17 @@ export default function UploadForm({ onUploadSuccess }) {
                 body: formData,
             });
 
-            const data = await response.json();
+            let data;
+            const contentType = response.headers.get("content-type");
+
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                data = await response.json();
+            } else {
+                // Handle non-JSON response (usually server crash or timeout)
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                throw new Error('SERVER_LIMIT_REACHED');
+            }
 
             if (!response.ok) {
                 throw new Error(data.error || 'Upload failed');
@@ -53,8 +63,19 @@ export default function UploadForm({ onUploadSuccess }) {
             setFiles([]);
             if (onUploadSuccess) onUploadSuccess();
         } catch (err) {
-            toast.error(err.message, { id: uploadToast });
-            setError(err.message);
+            let userMessage = 'Something went wrong. Please try again.';
+
+            if (err.message === 'SERVER_LIMIT_REACHED') {
+                userMessage = 'The server took too long to process. Try uploading smaller files or a single file first.';
+            } else if (err.message.includes('Unexpected end of JSON input')) {
+                userMessage = 'The server crashed or timed out during processing. This is common on the first upload as AI models initialize.';
+            } else if (err.message) {
+                // Strip technical stack traces if they accidentally leaked
+                userMessage = err.message.split('\n')[0].replace('Error: ', '');
+            }
+
+            toast.error(userMessage, { id: uploadToast, duration: 6000 });
+            setError(userMessage);
         } finally {
             setIsUploading(false);
         }

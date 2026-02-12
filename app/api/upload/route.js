@@ -59,6 +59,8 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to upload documents' }, { status: 500 });
+        console.error('❌ Upload API Error:', error);
+        const message = error.message?.split('\n')[0] || 'Unknown error';
+        return NextResponse.json({ error: `Upload failed: ${message}` }, { status: 500 });
     }
 }

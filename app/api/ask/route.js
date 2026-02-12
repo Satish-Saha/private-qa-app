@@ -106,6 +106,8 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('❌ Ask API Error:', error);
-        return NextResponse.json({ error: `Failed to process question: ${error.message}` }, { status: 500 });
+        // Don't send exact error message if it contains long stack traces
+        const message = error.message?.split('\n')[0] || 'Unknown error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

@@ -75,7 +75,14 @@ export default function Home() {
                 body: JSON.stringify({ question }),
             });
 
-            const data = await response.json();
+            let data;
+            const contentType = response.headers.get("content-type");
+
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                data = await response.json();
+            } else {
+                throw new Error('SERVER_TIMEOUT');
+            }
 
             if (response.ok) {
                 toast.success('Found relevant information!', { id: askToast });
@@ -85,8 +92,15 @@ export default function Home() {
                 setAnswerResult({ answer: data.error || 'Error processing your question.', found: false });
             }
         } catch (error) {
-            toast.error('Network error. Check your connection.', { id: askToast });
-            setAnswerResult({ answer: 'Network error processing your question.', found: false });
+            let userMessage = 'Network error. Please try again.';
+            if (error.message === 'SERVER_TIMEOUT') {
+                userMessage = 'The AI server is busy or timed out. Please try asking again in a few seconds.';
+            } else if (error.message.includes('Unexpected end of JSON input')) {
+                userMessage = 'Search failed. The server took too long to generate an answer.';
+            }
+
+            toast.error(userMessage, { id: askToast, duration: 5000 });
+            setAnswerResult({ answer: userMessage, found: false });
         } finally {
             setIsLoadingAnswer(false);
         }
