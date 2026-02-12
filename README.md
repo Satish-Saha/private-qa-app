@@ -1,24 +1,29 @@
-# Private Knowledge Q&A Mini Workspace
+# Private Knowledge Q&A Mini Workspace (RAG Based)
 
-A professional full-stack Next.js application for secure, local document management and knowledge retrieval.
+A professional full-stack Next.js application that leverages a **Retrieval-Augmented Generation (RAG)** pipeline to provide intelligent answers from your private documents.
 
 ## 🚀 Core Features
-- **Smart Document Upload**: Batch upload `.txt` files to your private library.
-- **Local Knowledge Retrieval**: Search internal documents using a custom-built similarity engine.
-- **NO EXTERNAL AI**: Your data stays private. No LLM APIs (OpenAI/Gemini) are used.
-- **Source Attribution**: Every answer shows the filename and the exact paragraph source.
-- **System Health**: Dedicated status page for monitoring API and Database connectivity.
-- **Premium UI**: Responsive, glassmorphic design built with Tailwind CSS and Framer Motion.
+- **Intelligent Q&A**: Powered by **Google Gemini 2.5 Flash** for high-quality, context-aware responses.
+- **RAG Architecture**: Combines local vector search with LLM reasoning to ensure accuracy.
+- **Local Embeddings**: Document processing and similarity search happen entirely on your machine using the `all-MiniLM-L6-v2` model via `@xenova/transformers`.
+- **Hybrid Storage**: MongoDB for persistent records, and an optimized in-memory vector store for lightning-fast retrieval.
+- **Smart Data Handling**: Auto-chunking (500 chars with 50-char overlap) for optimal context window management.
+- **Premium UI**: Responsive, minimal glassmorphic design built with Tailwind CSS, Framer Motion, and React Markdown.
+- **Source Attribution**: Every answer is backed by "Verification Chunks" showing the exact snippets used for the answer.
 
 ## 🛠 Tech Stack
-- **Frontend**: Next.js 14+ (App Router)
+- **Framework**: Next.js 16 (App Router)
+- **AI/ML**: 
+  - **Local**: `@xenova/transformers` (Local Embedding Generation)
+  - **LLM**: Google Gemini API (`gemini-2.5-flash`)
 - **Styling**: Tailwind CSS & Framer Motion
-- **Backend**: Next.js API Routes (Node.js)
 - **Database**: MongoDB Atlas with Mongoose
+- **Status Monitoring**: Custom health check system for the backend, DB, and AI readiness.
 
 ## 📦 Prerequisites
 - Node.js 18.0 or higher
 - MongoDB Atlas (or a local MongoDB instance)
+- Google AI Studio API Key (for Gemini)
 
 ## ⚙️ Installation & Setup
 
@@ -39,16 +44,27 @@ A professional full-stack Next.js application for secure, local document managem
    ```
 5. **Visit the app**: [http://localhost:3000](http://localhost:3000)
 
-## 📡 Health Monitoring
-Visit `/status` inside the application to see real-time health checks for the Backend, MongoDB connection, and search engine readiness.
+## 🧪 Quick Testing
+I have provided two sample files in the root directory that you can use to test the RAG functionality immediately:
+- **`Resume.txt`**: A sample developer profile.
+- **`Notes.txt`**: Technical notes and skill descriptions.
 
-## 🧠 Similarity Search Approach
-1. **Paragraph Chunking**: Documents are split into logical chunks based on double newlines.
-2. **Keyword Mapping**: Questions are tokenized and common "stop words" are removed.
-3. **Scoring**: A similarity score is calculated based on keyword overlap and exact phrase matching.
-4. **Retrieval**: The highest-scoring chunk is returned as the primary answer with full metadata.
+Simply upload these via the UI, and then you can ask questions like *"What are the technical skills?"* or *"Describe the professional experience."*
+
+## 📡 Health Monitoring
+Visit `/status` to see real-time health checks for:
+- **Backend**: API responsiveness.
+- **Database**: MongoDB connection state.
+- **Search Engine**: Index readiness and document count.
+
+## 🧠 The RAG Pipeline
+1. **Extraction**: TXT content is extracted and split into chunks with overlap to preserve context.
+2. **Embedding**: A local `all-MiniLM` model converts text into 384-dimensional vectors.
+3. **Vector Store**: Chunks are stored in memory for O(1) retrieval speed.
+4. **Similarity Search**: User questions are embedded and matched using **Cosine Similarity**.
+5. **Generation**: The top 3 most relevant contexts are sent to Gemini with a strict "answer only using context" instruction to prevent hallucinations.
 
 ## 📝 Document Information
-- **AI_NOTES.md**: Technical details of AI involvement and search engine implementation.
-- **ABOUTME.md**: Developer profile and experience.
-- **PROMPTS_USED.md**: The prompts driving the creation of this workspace.
+- **AI_NOTES.md**: Technical deep-dive into the RAG architecture and local embedding logic.
+- **ABOUTME.md**: Developer profile and experience ([Satish-Saha](https://github.com/Satish-Saha)).
+- **PROMPTS_USED.md**: The prompts driving the creation and upgrades of this workspace.

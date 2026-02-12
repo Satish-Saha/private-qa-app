@@ -1,0 +1,20 @@
+Notes
+
+This application allows users to upload text documents and ask questions from them.
+
+Main Features:
+- Upload multiple .txt files
+- View uploaded document list
+- Delete documents anytime
+- Ask questions and get answers from stored documents
+
+How Answering Works:
+The system splits documents into paragraphs.
+It finds the most relevant paragraph using keyword similarity.
+The answer is generated from the best matching paragraph.
+
+Future Improvements:
+- Add PDF support
+- Use embeddings for smarter search
+- Add user authentication
+- Support more workflow-like features

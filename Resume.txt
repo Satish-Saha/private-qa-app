@@ -1,0 +1,27 @@
+Resume 
+
+Name - Satish Kumar
+
+Role - I am a Full Stack Developer.
+
+Technical Skills:
+- Frontend: React.js, Next.js, Tailwind CSS
+- Backend: Node.js, Express.js
+- Database: MongoDB
+- Tools: Git, GitHub, Postman
+
+Experience:
+Associate Software Engineer at Xardent from a past year.
+Worked on building responsive dashboards, REST APIs, and authentication systems.
+
+Company - Xardent Tech Pvt Ltd
+
+Projects:
+1. Task Management App
+   Built a full-stack app with user login, CRUD tasks, and MongoDB storage.
+
+2. E-commerce Mini Store
+   Developed product listing, cart system, and admin panel.
+
+Strengths:
+I enjoy solving real-world problems, writing clean code, and learning new technologies.
