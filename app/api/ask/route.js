@@ -56,9 +56,9 @@ export async function POST(request) {
             return NextResponse.json({ error: 'No documents uploaded yet' }, { status: 400 });
         }
 
-        // 2. Generate embedding for question
+        // 2. Generate embedding for question (using isQuery = true)
         console.log('🧠 Generating question embedding...');
-        const questionEmbedding = await getEmbedding(question);
+        const questionEmbedding = await getEmbedding(question, true);
 
         // 3. Compute cosine similarity
         console.log('🔍 Computing similarity scores...');
@@ -67,24 +67,36 @@ export async function POST(request) {
             similarity: cosineSimilarity(questionEmbedding, chunk.embedding)
         }));
 
-        // 4. Retrieve top 3 most relevant chunks
+        // 4. Retrieve top 5 most relevant chunks (increased from 3 for better coverage)
         const topChunks = scoredChunks
             .sort((a, b) => b.similarity - a.similarity)
-            .slice(0, 3)
-            .filter(c => c.similarity > 0.05); // Lower threshold slightly
+            .slice(0, 5)
+            .filter(c => c.similarity > 0.01);
 
         if (topChunks.length === 0) {
             console.warn('⚠️ No relevant chunks found');
             return NextResponse.json({
-                answer: 'No matching context found in your documents to answer this question.',
+                answer: 'No matching context found in your documents to answer this question. Try making your question more specific.',
                 found: false
             });
         }
 
+        console.log(`🔍 Retrieved ${topChunks.length} chunks from: ${[...new Set(topChunks.map(c => c.document))].join(', ')}`);
+
         // 5. Build LLM prompt
         console.log(`🛰️ Calling Gemini with ${topChunks.length} context chunks...`);
-        const contextText = topChunks.map(c => `[Source: ${c.document}]\n${c.text}`).join('\n\n');
-        const prompt = `Answer ONLY using this context:\n\n${contextText}\n\nQuestion: ${question}`;
+        const contextText = topChunks.map(c => `[DOCUMENT: ${c.document}]\n${c.text}`).join('\n\n---\n\n');
+
+        const prompt = `You are a helpful assistant. Use the following document snippets to answer the user's question. 
+If the information is not in the context, say you don't know based on the documents. 
+If asked about "my" name, role, or details, look for personal identifiers like "Name" or "Role" in the snippets.
+
+CONTEXT SNIPPETS:
+${contextText}
+
+QUESTION: ${question}
+
+ANSWER:`;
 
         // 6. Call Gemini Chat Completion API
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -99,15 +111,29 @@ export async function POST(request) {
             answer: answer,
             sources: topChunks.map(c => ({
                 document: c.document,
-                text: c.text
+                text: c.text,
+                similarity: Math.round(c.similarity * 100) // Percentage score
             })),
             found: true
         });
 
     } catch (error) {
         console.error('❌ Ask API Error:', error);
-        // Don't send exact error message if it contains long stack traces
-        const message = error.message?.split('\n')[0] || 'Unknown error';
-        return NextResponse.json({ error: message }, { status: 500 });
+
+        // Friendly Error Masking
+        let userMessage = 'An unexpected error occurred while processing your question.';
+
+        if (error.message.includes('429') || error.message.toLowerCase().includes('quota')) {
+            userMessage = 'The AI service is currently busy due to high demand (Rate Limit). Please wait a few seconds and try your question again.';
+        } else if (error.message.includes('403') || error.message.includes('permission')) {
+            userMessage = 'Configuration Error: Access denied. Please check your Gemini API key permissions.';
+        } else if (error.message.includes('404')) {
+            userMessage = 'AI Model Error: The requested model could not be found. Please check your model configuration.';
+        } else {
+            // Provide a clean snippet of the error if it's not a common API limit
+            userMessage = `Service Error: ${error.message.split('\n')[0]}`;
+        }
+
+        return NextResponse.json({ error: userMessage }, { status: 500 });
     }
 }

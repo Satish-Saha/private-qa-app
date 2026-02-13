@@ -5,7 +5,7 @@ A professional full-stack Next.js application that leverages a **Retrieval-Augme
 ## 🚀 Core Features
 - **Intelligent Q&A**: Powered by **Google Gemini 2.5 Flash** for high-quality, context-aware responses.
 - **RAG Architecture**: Combines vector-based semantic search with LLM reasoning to ensure accuracy.
-- **Remote Embeddings**: Uses Google's `embedding-001` model for high-speed, semantic vector generation.
+- **Remote Embeddings**: Uses Google's `gemini-embedding-001` model for high-speed, semantic vector generation.
 - **Hybrid Storage**: MongoDB for persistent records, and an optimized in-memory vector store for lightning-fast retrieval.
 - **Smart Data Handling**: Auto-chunking (500 chars with 50-char overlap) for optimal context window management.
 - **Premium UI**: Responsive, minimal glassmorphic design built with Tailwind CSS, Framer Motion, and React Markdown.
@@ -13,7 +13,7 @@ A professional full-stack Next.js application that leverages a **Retrieval-Augme
 
 ## 🛠 Tech Stack
 - **Framework**: Next.js 16 (App Router)
-- **AI/ML**: Google Gemini API (`2.5-flash` for answers, `embedding-001` for vectors)
+- **AI/ML**: Google Gemini API (`2.5-flash` for answers, `gemini-embedding-001` for vectors)
 - **Styling**: Tailwind CSS & Framer Motion
 - **Database**: MongoDB Atlas with Mongoose
 - **Status Monitoring**: Custom health check system for the backend, DB, and AI readiness.

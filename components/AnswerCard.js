@@ -124,7 +124,14 @@ export default function AnswerCard({ result, question }) {
                                     <div className="flex items-start gap-3">
                                         <FileText className="w-4 h-4 text-slate-300 mt-0.5" />
                                         <div className="flex-1 min-w-0">
-                                            <span className="block text-[10px] font-bold text-slate-400 mb-1 uppercase truncate">{src.document}</span>
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase truncate">{src.document}</span>
+                                                {src.similarity && (
+                                                    <span className="text-[9px] font-bold text-primary-500 bg-primary-50 px-1.5 py-0.5 rounded-md">
+                                                        {src.similarity}% MATCH
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="text-sm text-slate-500 italic leading-relaxed">
                                                 "...{highlightText(src.text, question)}..."
                                             </p>

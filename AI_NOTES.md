@@ -2,7 +2,7 @@
 
 ## AI Architecture
 This project has been upgraded to a full **Retrieval-Augmented Generation (RAG)** pipeline.
-- **Embeddings**: Powered by **Google Gemini `embedding-001`** for high-quality semantic vector generation.
+- **Embeddings**: Powered by **Google Gemini `gemini-embedding-001`** for high-quality semantic vector generation.
 - **Vector Search**: Custom cosine similarity engine computed against stored embeddings.
 - **Answer Generation**: Powered by **Google Gemini 2.5 Flash** for high-quality, context-aware responses.
 

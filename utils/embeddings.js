@@ -3,33 +3,32 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Initialize Gemini for Embeddings
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-export async function getEmbedding(text) {
+export async function getEmbedding(text, isQuery = false) {
     try {
         if (!process.env.GEMINI_API_KEY) {
+            throw new Error('CONFIG_ERROR: GEMINI_API_KEY is missing in your environment variables.');
         }
 
-        // Using embedding-001 as it has the widest regional support and stability
-        const model = genAI.getGenerativeModel({ model: "embedding-001" });
-        const result = await model.embedContent(text);
+        const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+
+        // Use task-specific embeddings for better retrieval accuracy
+        const result = await model.embedContent({
+            content: { parts: [{ text }] },
+            taskType: isQuery ? "RETRIEVAL_QUERY" : "RETRIEVAL_DOCUMENT",
+        });
+
         const embedding = result.embedding.values;
 
         if (!embedding || !Array.isArray(embedding)) {
-            throw new Error('Failed to retrieve valid embedding array');
+            throw new Error('INVALID_RESPONSE: The API did not return a valid vector array.');
         }
 
         return Array.from(embedding);
     } catch (error) {
         console.error('❌ Gemini Embedding Error:', error);
 
-        // Provide a user-friendly error message instead of technical API details
-        let friendlyMessage = 'The AI categorization service is temporarily unavailable. Please try again in a few moments.';
-
-        if (error.message.includes('404')) {
-            friendlyMessage = 'AI Model Error: The requested embedding model is not available in your region or is misconfigured.';
-        } else if (error.message.includes('API_KEY')) {
-            friendlyMessage = 'Configuration Error: Valid Gemini API Key is missing in environment variables.';
-        }
-
-        throw new Error(friendlyMessage);
+        // Return clear, actionable error text
+        const reason = error.message?.split('\n')[0] || 'Unknown API Error';
+        throw new Error(`AI Service Error: ${reason}`);
     }
 }

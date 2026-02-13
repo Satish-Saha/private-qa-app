@@ -1,37 +1,41 @@
 /**
- * Splits text into chunks of approximately targetSize with overlap.
+ * Splits text into logical chunks.
+ * Prioritizes structural breaks (paragraphs) over character limits
+ * to preserve the "identity" of sections like Name/Role/Skills.
  */
-export function chunkText(text, targetSize = 500, overlap = 50) {
+export function chunkText(text, targetSize = 300, overlap = 20) {
     if (!text) return [];
 
+    // 1. First split by logical paragraphs
+    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
     const chunks = [];
-    let i = 0;
 
-    while (i < text.length) {
-        // Find end of chunk
-        let end = i + targetSize;
+    for (let para of paragraphs) {
+        para = para.trim();
 
-        // If not at the end of text, try to find a natural break (period or space)
-        if (end < text.length) {
-            const nextSpace = text.indexOf(' ', end);
-            if (nextSpace !== -1 && nextSpace < end + 20) {
-                end = nextSpace;
-            }
+        // 2. If a paragraph is small enough, keep it as one chunk (preserves meaning better)
+        if (para.length <= targetSize + overlap) {
+            chunks.push(para);
         } else {
-            end = text.length;
+            // 3. Fallback to sliding window for very long paragraphs
+            let i = 0;
+            while (i < para.length) {
+                let end = i + targetSize;
+
+                if (end < para.length) {
+                    const nextSpace = para.indexOf(' ', end);
+                    if (nextSpace !== -1 && nextSpace < end + 20) {
+                        end = nextSpace;
+                    }
+                } else {
+                    end = para.length;
+                }
+
+                chunks.push(para.slice(i, end).trim());
+                i = end - overlap;
+                if (i >= para.length || end >= para.length) break;
+            }
         }
-
-        const chunk = text.slice(i, end).trim();
-        if (chunk.length > 0) {
-            chunks.push(chunk);
-        }
-
-        // Move pointer forward, but subtract overlap
-        i = end - overlap;
-
-        // Safety check to prevent infinite loop
-        if (i >= text.length || end >= text.length) break;
-        if (i <= 0 && i !== 0) i = 0; // Should not happen with positive targetSize > overlap
     }
 
     return chunks;
