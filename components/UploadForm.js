@@ -143,7 +143,17 @@ export default function UploadForm({ onUploadSuccess }) {
             </AnimatePresence>
 
             {error && (
-                <p className="mt-3 text-sm text-red-500 font-medium">{error}</p>
+                <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                    <div className="w-5 h-5 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-[10px] font-bold">!</span>
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-xs font-bold text-red-700 uppercase tracking-tight mb-0.5">Upload Failed</p>
+                        <p className="text-sm text-red-600 leading-relaxed capitalize-first">
+                            {error.replace(/^Upload failed: /, '').replace(/^AI Service Error: /, '')}
+                        </p>
+                    </div>
+                </div>
             )}
         </div>
     );

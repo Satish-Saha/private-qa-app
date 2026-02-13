@@ -130,8 +130,15 @@ ANSWER:`;
         } else if (error.message.includes('404')) {
             userMessage = 'AI Model Error: The requested model could not be found. Please check your model configuration.';
         } else {
-            // Provide a clean snippet of the error if it's not a common API limit
-            userMessage = `Service Error: ${error.message.split('\n')[0]}`;
+            // If the error already looks user-friendly (from our utility), use it directly
+            if (error.message.includes('Configuration Error') ||
+                error.message.includes('AI Configuration Error') ||
+                error.message.includes('Model Error') ||
+                error.message.includes('Rate Limit')) {
+                userMessage = error.message;
+            } else {
+                userMessage = `Service Error: ${error.message.split('\n')[0]}`;
+            }
         }
 
         return NextResponse.json({ error: userMessage }, { status: 500 });

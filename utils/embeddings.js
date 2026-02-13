@@ -27,8 +27,19 @@ export async function getEmbedding(text, isQuery = false) {
     } catch (error) {
         console.error('❌ Gemini Embedding Error:', error);
 
-        // Return clear, actionable error text
-        const reason = error.message?.split('\n')[0] || 'Unknown API Error';
-        throw new Error(`AI Service Error: ${reason}`);
+        const errorText = error.message || '';
+        let userFriendlyReason = 'The AI service is temporarily unavailable.';
+
+        if (errorText.includes('API_KEY_INVALID') || errorText.includes('API Key not found')) {
+            userFriendlyReason = 'AI Configuration Error: Your Gemini API key is invalid or has expired. Please check your .env.local or Vercel settings.';
+        } else if (errorText.includes('429') || errorText.toLowerCase().includes('quota')) {
+            userFriendlyReason = 'Rate Limit Reached: The AI service is receiving too many requests. Please try again in 1 minute.';
+        } else if (errorText.includes('404')) {
+            userFriendlyReason = 'Model Error: The embedding model is not supported in your API key\'s region.';
+        } else if (errorText.includes('CONFIG_ERROR')) {
+            userFriendlyReason = errorText.split(': ')[1] || errorText;
+        }
+
+        throw new Error(userFriendlyReason);
     }
 }
