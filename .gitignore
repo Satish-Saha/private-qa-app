@@ -32,3 +32,5 @@ next-env.d.ts
 # local transformers cache (if any)
 .cache/
 onnx/
+
+ABOUTME.md
